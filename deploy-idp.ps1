@@ -60,8 +60,11 @@ if ($RepoUrl -eq "https://github.com/sekharpe/IDP-CNOE" -and !$SkipRepoUpdate) {
     Write-Host ""
     
     if (-not $Yes) {
-        $options = @("&Yes","&No")
-        $choice = $Host.UI.PromptForChoice("Continue","This will fail when ArgoCD tries to sync", $options, 1)
+        $choiceDescriptions = [System.Management.Automation.Host.ChoiceDescription[]]@(
+            (New-Object System.Management.Automation.Host.ChoiceDescription "Yes","Proceed"),
+            (New-Object System.Management.Automation.Host.ChoiceDescription "No","Cancel")
+        )
+        $choice = $Host.UI.PromptForChoice("Continue","This will fail when ArgoCD tries to sync", $choiceDescriptions, 1)
         if ($choice -ne 0) {
             Write-Host "Deployment cancelled." -ForegroundColor Yellow
             exit 0
