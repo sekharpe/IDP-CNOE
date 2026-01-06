@@ -7,13 +7,13 @@ data:
   app-config.yaml: |
     app:
       title: Platform Engineering Portal
-      baseUrl: https://backstage.yourdomain.com
+      baseUrl: http://localhost:7007
     
     organization:
       name: Your Organization
     
     backend:
-      baseUrl: https://backstage.yourdomain.com
+      baseUrl: http://localhost:7007
       listen:
         port: 7007
       csp:
@@ -45,4 +45,4 @@ data:
         - allow: [Component, System, API, Resource, Location, Template]
       locations:
         - type: url
-          target: https://github.com/your-org/platform-templates/blob/main/catalog-info.yaml
+          target: https://github.com/sekharpe/IDP-CNOE/blob/master/backstage/templates/demo-nodejs/skeleton/catalog-info.yaml

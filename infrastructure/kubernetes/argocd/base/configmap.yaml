@@ -12,7 +12,7 @@ data:
   
   # Git repository credentials template
   repositories: |
-    - url: https://github.com/your-org/platform-config.git
+    - url: https://github.com/sekharpe/IDP-CNOE.git
       passwordSecret:
         name: github-credentials
         key: password

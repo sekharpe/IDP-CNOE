@@ -83,19 +83,19 @@ data:
       locations:
         # Demo Node.js Template (works without external dependencies)
         - type: url
-          target: https://github.com/your-org/idp/blob/main/backstage/templates/demo-nodejs/template.yaml
+          target: https://github.com/sekharpe/IDP-CNOE/tree/master/backstage/templates/demo-nodejs/template.yaml
           rules:
             - allow: [Template]
         
         # Azure VM Template (requires Azure configuration)
         - type: url
-          target: https://github.com/your-org/idp/blob/main/backstage/templates/azure-vm-basic/template.yaml
+          target: https://github.com/sekharpe/IDP-CNOE/tree/master/backstage/templates/azure-vm-basic/template.yaml
           rules:
             - allow: [Template]
         
         # Add your service catalogs here
         # - type: url
-        #   target: https://github.com/your-org/sample-app/blob/main/catalog-info.yaml
+        #   target: https://github.com/sekharpe/IDP-CNOE/blob/master/backstage/templates/demo-nodejs/skeleton/catalog-info.yaml
     
     kubernetes:
       serviceLocatorMethod:
