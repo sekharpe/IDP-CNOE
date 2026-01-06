@@ -164,17 +164,17 @@ Write-Host ""
 Write-Host "📍 Access Information:" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "ArgoCD UI:" -ForegroundColor Yellow
-Write-Host "  URL:      http://localhost:8080" -ForegroundColor White
-Write-Host "  Username: admin" -ForegroundColor White
+Write-Host 'ArgoCD UI:' -ForegroundColor Yellow
+Write-Host '  URL:      http://localhost:8080' -ForegroundColor White
+Write-Host '  Username: admin' -ForegroundColor White
 Write-Host "  Password: $argocdPassword" -ForegroundColor White
-Write-Host "  Command:  kubectl port-forward svc/argocd-server -n argocd 8080:80" -ForegroundColor Gray
-Write-Host ""
+Write-Host '  Command:  kubectl port-forward svc/argocd-server -n argocd 8080:80' -ForegroundColor Gray
+Write-Host ''
 
-Write-Host "Backstage Portal (will be available once deployed):" -ForegroundColor Yellow
-Write-Host "  URL:      http://localhost:7007" -ForegroundColor White
-Write-Host "  Command:  kubectl port-forward svc/backstage -n backstage 7007:7007" -ForegroundColor Gray
-Write-Host ""
+Write-Host 'Backstage Portal (will be available once deployed):' -ForegroundColor Yellow
+Write-Host '  URL:      http://localhost:7007' -ForegroundColor White
+Write-Host '  Command:  kubectl port-forward svc/backstage -n backstage 7007:7007' -ForegroundColor Gray
+Write-Host ''
 
 # Useful commands
 Write-Host "📋 Useful Commands:" -ForegroundColor Cyan
