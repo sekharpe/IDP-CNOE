@@ -16,7 +16,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sekharpe/IDP-CNOE.git  # UPDATE: Your Git repository
-    targetRevision: main
+    targetRevision: master
     path: infrastructure/kubernetes/argocd/base
   destination:
     server: https://kubernetes.default.svc
@@ -39,7 +39,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sekharpe/IDP-CNOE.git  # UPDATE: Your Git repository
-    targetRevision: main
+    targetRevision: master
     path: infrastructure/kubernetes/ingress
   destination:
     server: https://kubernetes.default.svc
@@ -62,7 +62,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sekharpe/IDP-CNOE.git  # UPDATE: Your Git repository
-    targetRevision: main
+    targetRevision: master
     path: infrastructure/kubernetes/namespaces
   destination:
     server: https://kubernetes.default.svc
@@ -83,7 +83,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sekharpe/IDP-CNOE.git  # UPDATE: Your Git repository
-    targetRevision: main
+    targetRevision: master
     path: infrastructure/kubernetes/backstage
   destination:
     server: https://kubernetes.default.svc

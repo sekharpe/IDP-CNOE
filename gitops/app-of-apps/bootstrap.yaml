@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sekharpe/IDP-CNOE.git  # UPDATE: Your Git repository
-    targetRevision: main
+    targetRevision: master
     path: gitops/app-of-apps
   destination:
     server: https://kubernetes.default.svc
