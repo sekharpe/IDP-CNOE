@@ -11,41 +11,39 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host @"
-
-╔═══════════════════════════════════════════════════════════╗
-║           Internal Developer Portal Installer             ║
-║                   Docker Desktop Edition                  ║
-╚═══════════════════════════════════════════════════════════╝
-
+========================================
+ Internal Developer Portal Installer
+ Docker Desktop Edition
+========================================
 "@ -ForegroundColor Cyan
 
 # Check prerequisites
-Write-Host "🔍 Checking prerequisites..." -ForegroundColor Yellow
+Write-Host "[INFO] Checking prerequisites..." -ForegroundColor Yellow
 
 # Check kubectl
 try {
-    $kubectlVersion = kubectl version --client --short 2>$null
-    Write-Host "  ✅ kubectl: $kubectlVersion" -ForegroundColor Green
+    $kubectlVersion = kubectl version --client 2>$null
+    Write-Host "  [OK] kubectl: $kubectlVersion" -ForegroundColor Green
 } catch {
-    Write-Host "  ❌ kubectl not found. Please install kubectl first." -ForegroundColor Red
+    Write-Host "  [ERROR] kubectl not found. Please install kubectl first." -ForegroundColor Red
     exit 1
 }
 
 # Check Kubernetes context
 try {
     $context = kubectl config current-context
-    Write-Host "  ✅ Kubernetes context: $context" -ForegroundColor Green
+    Write-Host "  [OK] Kubernetes context: $context" -ForegroundColor Green
 } catch {
-    Write-Host "  ❌ No Kubernetes context found. Is Docker Desktop Kubernetes enabled?" -ForegroundColor Red
+    Write-Host "  [ERROR] No Kubernetes context found. Is Docker Desktop Kubernetes enabled?" -ForegroundColor Red
     exit 1
 }
 
 # Check if cluster is reachable
 try {
     kubectl get nodes | Out-Null
-    Write-Host "  ✅ Kubernetes cluster is reachable" -ForegroundColor Green
+    Write-Host "  [OK] Kubernetes cluster is reachable" -ForegroundColor Green
 } catch {
-    Write-Host "  ❌ Cannot connect to Kubernetes cluster" -ForegroundColor Red
+    Write-Host "  [ERROR] Cannot connect to Kubernetes cluster" -ForegroundColor Red
     exit 1
 }
 
@@ -53,7 +51,7 @@ Write-Host ""
 
 # Validate repository URL
 if ($RepoUrl -eq "https://github.com/sekharpe/IDP-CNOE" -and !$SkipRepoUpdate) {
-    Write-Host "⚠️  WARNING: Using placeholder repository URL!" -ForegroundColor Red
+    Write-Host "[WARN] WARNING: Using placeholder repository URL!" -ForegroundColor Red
     Write-Host "   For GitOps to work, you need to:" -ForegroundColor Yellow
     Write-Host "   1. Push this code to a Git repository" -ForegroundColor Yellow
     Write-Host "   2. Run: .\deploy-idp.ps1 -RepoUrl 'https://github.com/yourorg/yourrepo.git'" -ForegroundColor Yellow
@@ -74,13 +72,13 @@ if ($RepoUrl -eq "https://github.com/sekharpe/IDP-CNOE" -and !$SkipRepoUpdate) {
     }
 }
 
-Write-Host "📦 Repository URL: $RepoUrl" -ForegroundColor Cyan
+Write-Host "[INFO] Repository URL: $RepoUrl" -ForegroundColor Cyan
 Write-Host ""
 
 # Step 1: Install ArgoCD
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host "Step 1/3: Installing ArgoCD" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 
 Write-Host "Creating argocd namespace..." -ForegroundColor Yellow
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f - | Out-Null
@@ -91,29 +89,29 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 Write-Host "Waiting for ArgoCD server to be ready..." -ForegroundColor Yellow
 kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd | Out-Null
 
-Write-Host "✅ ArgoCD installed successfully!" -ForegroundColor Green
+Write-Host "[OK] ArgoCD installed successfully!" -ForegroundColor Green
 Write-Host ""
 
 # Step 2: Configure ArgoCD
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host "Step 2/3: Configuring ArgoCD" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 
 Write-Host "Configuring insecure mode for local development..." -ForegroundColor Yellow
 kubectl patch configmap argocd-cmd-params-cm -n argocd --type merge -p '{"data":{"server.insecure":"true"}}' | Out-Null
 kubectl rollout restart deployment argocd-server -n argocd | Out-Null
 kubectl wait --for=condition=available --timeout=120s deployment/argocd-server -n argocd | Out-Null
 
-Write-Host "✅ ArgoCD configured!" -ForegroundColor Green
+Write-Host "[OK] ArgoCD configured!" -ForegroundColor Green
 Write-Host ""
 
 # Get admin password
 $argocdPassword = kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | ForEach-Object { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
 
 # Step 3: Update repository URLs and deploy
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host "Step 3/3: Deploying IDP via GitOps" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 
 if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/sekharpe/IDP-CNOE") {
     Write-Host "Updating repository URLs in manifests..." -ForegroundColor Yellow
@@ -123,7 +121,7 @@ if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/sekharpe/IDP-CNOE") {
         $updated = $content -replace 'https://github.com/sekharpe/IDP-CNOE\.git', $RepoUrl
         if ($content -ne $updated) {
             Set-Content -Path $_.FullName -Value $updated -NoNewline
-            Write-Host "  ✅ Updated: $($_.FullName)" -ForegroundColor Gray
+            Write-Host "  [OK] Updated: $($_.FullName)" -ForegroundColor Gray
         }
     }
     
@@ -132,7 +130,7 @@ if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/sekharpe/IDP-CNOE") {
         $updated = $content -replace 'https://github.com/sekharpe/IDP-CNOE\.git', $RepoUrl
         if ($content -ne $updated) {
             Set-Content -Path $_.FullName -Value $updated -NoNewline
-            Write-Host "  ✅ Updated: $($_.FullName)" -ForegroundColor Gray
+            Write-Host "  [OK] Updated: $($_.FullName)" -ForegroundColor Gray
         }
     }
 }
