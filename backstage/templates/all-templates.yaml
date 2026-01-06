@@ -4,7 +4,7 @@ metadata:
   name: platform-templates
   description: Platform Engineering Templates
   annotations:
-    backstage.io/managed-by-location: url:https://github.com/your-org/idp/blob/main/backstage/templates/all-templates.yaml
+    backstage.io/managed-by-location: url:https://github.com/sekharpe/IDP-CNOE/blob/master/backstage/templates/all-templates.yaml
 spec:
   type: url
   targets:
