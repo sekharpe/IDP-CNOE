@@ -1,0 +1,119 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: azure-vm-basic
+  title: Create Azure Virtual Machine
+  description: Deploy a basic Linux virtual machine in your Azure subscription
+  tags:
+    - azure
+    - vm
+    - compute
+    - terraform
+spec:
+  owner: platform-team
+  type: infrastructure
+  
+  parameters:
+    - title: VM Information
+      required:
+        - vm_name
+        - azure_subscription_id
+      properties:
+        vm_name:
+          title: Virtual Machine Name
+          type: string
+          description: Name for your VM (lowercase, alphanumeric, max 15 chars)
+          pattern: '^[a-z0-9]{3,15}$'
+          ui:autofocus: true
+          ui:help: 'Example: myapp01, webserver'
+        
+        azure_subscription_id:
+          title: Azure Subscription ID
+          type: string
+          description: Your Azure subscription ID
+          ui:help: 'Find in Azure Portal > Subscriptions'
+        
+        azure_region:
+          title: Azure Region
+          type: string
+          description: Location to deploy the VM
+          default: eastus
+          enum:
+            - eastus
+            - eastus2
+            - westus2
+            - centralus
+            - westeurope
+            - northeurope
+          enumNames:
+            - East US
+            - East US 2
+            - West US 2
+            - Central US
+            - West Europe
+            - North Europe
+        
+        vm_size:
+          title: VM Size
+          type: string
+          description: Virtual machine size
+          default: Standard_B2s
+          enum:
+            - Standard_B1s
+            - Standard_B2s
+            - Standard_B2ms
+            - Standard_D2s_v3
+          enumNames:
+            - B1s (1 vCPU, 1GB RAM) - $10/month
+            - B2s (2 vCPU, 4GB RAM) - $30/month
+            - B2ms (2 vCPU, 8GB RAM) - $60/month
+            - D2s_v3 (2 vCPU, 8GB RAM) - $70/month
+        
+        admin_username:
+          title: Admin Username
+          type: string
+          description: VM administrator username
+          default: azureuser
+        
+        ssh_public_key:
+          title: SSH Public Key
+          type: string
+          description: Your SSH public key for VM access
+          ui:widget: textarea
+          ui:help: 'Paste your SSH public key (ssh-rsa AAA...)'
+  
+  steps:
+    - id: trigger-pipeline
+      name: Trigger Azure Pipeline to Create VM
+      action: azure:pipeline:run
+      input:
+        organization: your-org
+        project: your-project
+        pipelineName: create-azure-vm
+        pipelineParameters:
+          vm_name: ${{ parameters.vm_name }}
+          azure_subscription_id: ${{ parameters.azure_subscription_id }}
+          azure_region: ${{ parameters.azure_region }}
+          vm_size: ${{ parameters.vm_size }}
+          admin_username: ${{ parameters.admin_username }}
+          ssh_public_key: ${{ parameters.ssh_public_key }}
+  
+  
+  output:
+    text:
+      - title: VM Creation Started
+        content: |
+          Your Azure VM deployment pipeline has been triggered!
+          
+          **VM Details:**
+          - Name: ${{ parameters.vm_name }}
+          - Size: ${{ parameters.vm_size }}
+          - Region: ${{ parameters.azure_region }}
+          - Subscription: ${{ parameters.azure_subscription_id }}
+          
+          **Next Steps:**
+          1. Monitor the pipeline in Azure DevOps
+          2. Wait for deployment to complete (~5-10 minutes)
+          3. Connect via SSH: ssh ${{ parameters.admin_username }}@<public-ip>
+          
+          The pipeline will run Terraform to create your VM infrastructure.

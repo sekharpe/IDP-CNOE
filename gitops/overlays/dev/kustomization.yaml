@@ -1,0 +1,10 @@
+# Base Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  managed-by: argocd
+  platform: cnoe
+
+resources:
+  - ../../base

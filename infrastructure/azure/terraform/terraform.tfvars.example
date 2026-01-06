@@ -1,0 +1,17 @@
+# Development Environment
+environment         = "dev"
+location            = "eastus"
+prefix              = "cnoe"
+kubernetes_version  = "1.28.3"
+aks_node_count      = 3
+aks_node_vm_size    = "Standard_D2s_v3"
+enable_auto_scaling = true
+min_node_count      = 2
+max_node_count      = 5
+
+tags = {
+  Platform    = "CNOE"
+  Environment = "dev"
+  ManagedBy   = "Terraform"
+  Team        = "Platform Engineering"
+}

@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  namespace: backstage
+  labels:
+    app: backstage
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: backstage
+        component: frontend
+    spec:
+      serviceAccountName: backstage
+      containers:
+      - name: backstage
+        image: roadiehq/community-backstage-image:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 7000
+          protocol: TCP
+        env:
+        - name: POSTGRES_HOST
+          value: postgres
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: password
+        - name: NODE_ENV
+          value: production
+        - name: PORT
+          value: "7000"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/app-config.production.yaml
+          subPath: app-config.production.yaml
+          readOnly: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 7000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 7000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: app-config
+        configMap:
+          name: backstage-app-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage
+  namespace: backstage
+  labels:
+    app: backstage
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 7000
+    targetPort: 7000
+    protocol: TCP
+  selector:
+    app: backstage
+    component: frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backstage
+  namespace: backstage
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: backstage.cnoe.local  # Update with your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backstage
+            port:
+              number: 7000
+  # Uncomment when you have TLS certificates
+  # tls:
+  # - hosts:
+  #   - backstage.cnoe.local
+  #   secretName: backstage-tls

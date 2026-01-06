@@ -1,0 +1,10 @@
+# Example terraform.tfvars
+# This file is created automatically by the Azure DevOps pipeline
+# based on parameters provided through Backstage
+
+# vm_name              = "myapp01"
+# azure_subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# location             = "eastus"
+# vm_size              = "Standard_B2s"
+# admin_username       = "azureuser"
+# ssh_public_key       = "ssh-rsa AAAAB3NzaC1yc2E..."

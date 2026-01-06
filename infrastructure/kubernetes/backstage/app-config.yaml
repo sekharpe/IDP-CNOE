@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.production.yaml: |
+    app:
+      title: Internal Developer Portal
+      baseUrl: http://backstage.localhost
+      
+    organization:
+      name: Your Organization
+      
+    backend:
+      baseUrl: http://backstage.localhost
+      listen:
+        port: 7007
+      csp:
+        connect-src: ["'self'", 'http:', 'https:']
+      cors:
+        origin: http://backstage.localhost
+        methods: [GET, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+          database: backstage
+      
+    integrations:
+      github:
+        - host: github.com
+          # Configure GitHub integration when needed
+          # token: ${GITHUB_TOKEN}
+      azure:
+        - host: dev.azure.com
+          # Configure Azure DevOps integration when needed
+          # token: ${AZURE_DEVOPS_TOKEN}
+    
+    proxy:
+      # ArgoCD API proxy for showing deployments in Backstage
+      '/argocd/api':
+        target: http://argocd-server.argocd.svc.cluster.local
+        changeOrigin: true
+        secure: false
+        headers:
+          Cookie: ${ARGOCD_AUTH_TOKEN}
+    
+    techdocs:
+      builder: 'local'
+      generator:
+        runIn: 'local'
+      publisher:
+        type: 'local'
+    
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+        # Add OAuth providers for production
+        # github:
+        #   development:
+        #     clientId: ${AUTH_GITHUB_CLIENT_ID}
+        #     clientSecret: ${AUTH_GITHUB_CLIENT_SECRET}
+    
+    scaffolder:
+      defaultAuthor:
+        name: Platform Team
+        email: platform@yourorg.com
+      defaultCommitMessage: 'Scaffolded by Backstage'
+    
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
+      rules:
+        - allow: [Component, System, API, Resource, Location, Template]
+      locations:
+        # Demo Node.js Template (works without external dependencies)
+        - type: url
+          target: https://github.com/your-org/idp/blob/main/backstage/templates/demo-nodejs/template.yaml
+          rules:
+            - allow: [Template]
+        
+        # Azure VM Template (requires Azure configuration)
+        - type: url
+          target: https://github.com/your-org/idp/blob/main/backstage/templates/azure-vm-basic/template.yaml
+          rules:
+            - allow: [Template]
+        
+        # Add your service catalogs here
+        # - type: url
+        #   target: https://github.com/your-org/sample-app/blob/main/catalog-info.yaml
+    
+    kubernetes:
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters:
+            - url: https://kubernetes.default.svc
+              name: docker-desktop
+              authProvider: 'serviceAccount'
+              skipTLSVerify: true
+              skipMetricsLookup: false
+    
+    argocd:
+      # ArgoCD integration for showing deployment status
+      appLocatorMethods:
+        - type: 'config'
+          instances:
+            - name: docker-desktop
+              url: http://argocd-server.argocd.svc.cluster.local
+              username: admin
+              # Password from secret

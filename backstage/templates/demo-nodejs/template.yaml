@@ -1,0 +1,95 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: demo-nodejs-app
+  title: Create Node.js Microservice
+  description: Scaffold a simple Node.js application with Kubernetes manifests
+  tags:
+    - nodejs
+    - javascript
+    - kubernetes
+    - demo
+spec:
+  owner: platform-team
+  type: service
+  
+  parameters:
+    - title: Application Information
+      required:
+        - component_id
+        - owner
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique name for this application
+          pattern: '^[a-z0-9-]+$'
+          ui:autofocus: true
+          ui:help: 'Example: my-api, user-service'
+        
+        description:
+          title: Description
+          type: string
+          description: What does this application do?
+          default: A simple Node.js microservice
+        
+        owner:
+          title: Owner
+          type: string
+          description: Team or person responsible for this service
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds:
+              - Group
+              - User
+    
+    - title: Configuration
+      required:
+        - port
+      properties:
+        port:
+          title: Port
+          type: number
+          description: Port number for the application
+          default: 3000
+        
+        replicas:
+          title: Replicas
+          type: number
+          description: Number of pod replicas
+          default: 1
+          enum: [1, 2, 3]
+  
+  steps:
+    - id: log
+      name: Log Parameters
+      action: debug:log
+      input:
+        message: 'Creating application: ${{ parameters.component_id }}'
+    
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          port: ${{ parameters.port }}
+          replicas: ${{ parameters.replicas }}
+    
+    - id: register
+      name: Register Component
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+  
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

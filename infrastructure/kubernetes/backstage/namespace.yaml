@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backstage
+  labels:
+    name: backstage
+    purpose: developer-portal
+    platform: cnoe

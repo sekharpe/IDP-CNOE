@@ -1,0 +1,18 @@
+# yaml-language-server: disable
+# This is a Kustomize strategic merge patch file
+# It only contains the fields that need to be patched, not a complete Deployment spec
+# The 'selector' field is intentionally omitted as it comes from the base ArgoCD installation
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      containers:
+      - name: argocd-server
+        command:
+        - argocd-server
+        - --insecure
+        - --staticassets
+        - /shared/app

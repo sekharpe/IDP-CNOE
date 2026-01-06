@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-dev
+  labels:
+    environment: dev
+    platform: cnoe
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-staging
+  labels:
+    environment: staging
+    platform: cnoe
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-prod
+  labels:
+    environment: prod
+    platform: cnoe
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    purpose: observability
+    platform: cnoe
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-nginx
+  labels:
+    purpose: ingress
+    platform: cnoe

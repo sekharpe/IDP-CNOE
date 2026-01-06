@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: backstage
+
+resources:
+  - namespace.yaml
+  - postgres-pvc.yaml
+  - postgres.yaml
+  - postgres-secret.yaml
+  - rbac.yaml
+  - app-config.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/name: backstage
+      app.kubernetes.io/part-of: internal-developer-portal
+      app.kubernetes.io/managed-by: kustomize
