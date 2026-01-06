@@ -3,8 +3,9 @@
 # This script only bootstraps ArgoCD - everything else is deployed automatically via GitOps!
 
 param(
-    [string]$RepoUrl = "https://github.com/your-org/idp.git",
-    [switch]$SkipRepoUpdate = $false
+    [string]$RepoUrl = "https://github.com/sekharpe/IDP-CNOE",
+    [switch]$SkipRepoUpdate = $false,
+    [switch]$Yes = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,17 +52,22 @@ try {
 Write-Host ""
 
 # Validate repository URL
-if ($RepoUrl -eq "https://github.com/your-org/idp.git" -and !$SkipRepoUpdate) {
+if ($RepoUrl -eq "https://github.com/sekharpe/IDP-CNOE" -and !$SkipRepoUpdate) {
     Write-Host "⚠️  WARNING: Using placeholder repository URL!" -ForegroundColor Red
     Write-Host "   For GitOps to work, you need to:" -ForegroundColor Yellow
     Write-Host "   1. Push this code to a Git repository" -ForegroundColor Yellow
     Write-Host "   2. Run: .\deploy-idp.ps1 -RepoUrl 'https://github.com/yourorg/yourrepo.git'" -ForegroundColor Yellow
     Write-Host ""
     
-    $continue = Read-Host "Continue anyway? This will fail when ArgoCD tries to sync (y/N)"
-    if ($continue -ne "y" -and $continue -ne "Y") {
-        Write-Host "Deployment cancelled." -ForegroundColor Yellow
-        exit 0
+    if (-not $Yes) {
+        $options = @("&Yes","&No")
+        $choice = $Host.UI.PromptForChoice("Continue","This will fail when ArgoCD tries to sync", $options, 1)
+        if ($choice -ne 0) {
+            Write-Host "Deployment cancelled." -ForegroundColor Yellow
+            exit 0
+        }
+    } else {
+        Write-Host "Auto-confirmed prompt with -Yes." -ForegroundColor Gray
     }
 }
 
@@ -106,12 +112,12 @@ Write-Host "══════════════════════�
 Write-Host "Step 3/3: Deploying IDP via GitOps" -ForegroundColor Cyan
 Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
 
-if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/your-org/idp.git") {
+if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/sekharpe/IDP-CNOE") {
     Write-Host "Updating repository URLs in manifests..." -ForegroundColor Yellow
     
     Get-ChildItem -Path "gitops" -Filter "*.yaml" -Recurse | ForEach-Object {
         $content = Get-Content $_.FullName -Raw
-        $updated = $content -replace 'https://github.com/your-org/idp\.git', $RepoUrl
+        $updated = $content -replace 'https://github.com/sekharpe/IDP-CNOE\.git', $RepoUrl
         if ($content -ne $updated) {
             Set-Content -Path $_.FullName -Value $updated -NoNewline
             Write-Host "  ✅ Updated: $($_.FullName)" -ForegroundColor Gray
@@ -120,7 +126,7 @@ if (!$SkipRepoUpdate -and $RepoUrl -ne "https://github.com/your-org/idp.git") {
     
     Get-ChildItem -Path "infrastructure" -Filter "*.yaml" -Recurse | ForEach-Object {
         $content = Get-Content $_.FullName -Raw
-        $updated = $content -replace 'https://github.com/your-org/idp\.git', $RepoUrl
+        $updated = $content -replace 'https://github.com/sekharpe/IDP-CNOE\.git', $RepoUrl
         if ($content -ne $updated) {
             Set-Content -Path $_.FullName -Value $updated -NoNewline
             Write-Host "  ✅ Updated: $($_.FullName)" -ForegroundColor Gray
