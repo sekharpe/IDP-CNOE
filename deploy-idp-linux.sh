@@ -232,6 +232,17 @@ deploy_idp_components() {
     # Fix StorageClass for K3s (change from hostpath to local-path)
     sudo sed -i 's/storageClassName: hostpath/storageClassName: local-path/' infrastructure/kubernetes/backstage/postgres-pvc.yaml
     
+    # Delete existing PVC if it has wrong storageClass
+    if kubectl get pvc postgres-pvc -n backstage &>/dev/null; then
+        CURRENT_SC=$(kubectl get pvc postgres-pvc -n backstage -o jsonpath='{.spec.storageClassName}')
+        if [ "$CURRENT_SC" = "hostpath" ]; then
+            echo "  → Deleting old PVC with incorrect storageClass..."
+            kubectl delete statefulset postgres -n backstage --ignore-not-found=true
+            kubectl delete pvc postgres-pvc -n backstage --ignore-not-found=true
+            sleep 5
+        fi
+    fi
+    
     kubectl apply -f infrastructure/kubernetes/backstage/postgres-pvc.yaml
     kubectl apply -f infrastructure/kubernetes/backstage/postgres.yaml
     
