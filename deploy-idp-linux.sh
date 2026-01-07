@@ -228,6 +228,10 @@ deploy_idp_components() {
     
     # Deploy PostgreSQL
     echo "  → Deploying PostgreSQL..."
+    
+    # Fix StorageClass for K3s (change from hostpath to local-path)
+    sed -i 's/storageClassName: hostpath/storageClassName: local-path/' infrastructure/kubernetes/backstage/postgres-pvc.yaml
+    
     kubectl apply -f infrastructure/kubernetes/backstage/postgres-pvc.yaml
     kubectl apply -f infrastructure/kubernetes/backstage/postgres.yaml
     
