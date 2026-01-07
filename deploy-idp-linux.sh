@@ -155,13 +155,14 @@ install_argocd() {
     echo "  → Waiting for ArgoCD to be ready (this may take 2-3 minutes)..."
     kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
     
-    # Patch ArgoCD for insecure mode (no TLS)
-    echo "  → Configuring ArgoCD..."
-    kubectl patch deployment argocd-server -n argocd \
-        --type='json' \
-        -p='[{"op": "add", "path": "/spec/template/spec/containers/0/command/-", "value": "--insecure"}]'
+    # Patch ArgoCD for insecure mode (no TLS) - using ConfigMap method
+    echo "  → Configuring ArgoCD for HTTP access..."
+    kubectl patch configmap argocd-cmd-params-cm -n argocd \
+        --type merge \
+        -p='{"data":{"server.insecure":"true"}}' || true
     
-    # Wait for rollout
+    # Restart ArgoCD server to apply changes
+    kubectl rollout restart deployment/argocd-server -n argocd
     kubectl rollout status deployment/argocd-server -n argocd --timeout=180s
     
     # Get ArgoCD password
