@@ -9,5 +9,5 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  # Use Docker Desktop hostpath storage class for local dev
-  storageClassName: hostpath
+  # Use local-path for K3s, hostpath for Docker Desktop
+  storageClassName: local-path
