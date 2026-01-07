@@ -231,9 +231,17 @@ deploy_idp_components() {
     kubectl apply -f infrastructure/kubernetes/backstage/postgres-pvc.yaml
     kubectl apply -f infrastructure/kubernetes/backstage/postgres.yaml
     
-    # Wait for PostgreSQL
-    echo "  → Waiting for PostgreSQL to be ready..."
-    kubectl wait --for=condition=ready pod -l app=postgres -n backstage --timeout=180s
+    # Wait for PostgreSQL with extended timeout
+    echo "  → Waiting for PostgreSQL to be ready (may take up to 5 minutes)..."
+    if ! kubectl wait --for=condition=ready pod -l app=postgres -n backstage --timeout=300s 2>/dev/null; then
+        echo -e "${YELLOW}  ⚠ PostgreSQL not ready yet, checking status...${NC}"
+        kubectl get pods -n backstage -l app=postgres
+        kubectl describe pod -l app=postgres -n backstage | tail -20
+        echo -e "${YELLOW}  → Continuing anyway, Backstage will retry connection...${NC}"
+        sleep 10
+    else
+        echo -e "${GREEN}  ✓ PostgreSQL ready${NC}"
+    fi
     
     # Deploy Backstage RBAC
     echo "  → Deploying Backstage RBAC..."
@@ -248,9 +256,16 @@ deploy_idp_components() {
     kubectl apply -f infrastructure/kubernetes/backstage/deployment.yaml
     kubectl apply -f infrastructure/kubernetes/backstage/service.yaml
     
-    # Wait for Backstage
-    echo "  → Waiting for Backstage to be ready (this may take 2-3 minutes)..."
-    kubectl wait --for=condition=available --timeout=300s deployment/backstage -n backstage || true
+    # Wait for Backstage with better error handling
+    echo "  → Waiting for Backstage to be ready (may take up to 5 minutes)..."
+    if ! kubectl wait --for=condition=available --timeout=300s deployment/backstage -n backstage 2>/dev/null; then
+        echo -e "${YELLOW}  ⚠ Backstage deployment not ready yet${NC}"
+        kubectl get pods -n backstage
+        echo -e "${YELLOW}  → Check logs with: kubectl logs -n backstage -l app=backstage${NC}"
+        echo -e "${YELLOW}  → Backstage may still be starting, continuing...${NC}"
+    else
+        echo -e "${GREEN}  ✓ Backstage ready${NC}"
+    fi
     
     # Create Ingress resources
     echo "  → Creating Ingress resources..."
