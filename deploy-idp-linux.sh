@@ -174,6 +174,20 @@ install_argocd() {
     
     # Save credentials
     echo "$ARGOCD_PASSWORD" | sudo tee /opt/argocd-password.txt > /dev/null
+    
+    # Bootstrap GitOps (app-of-apps pattern)
+    echo "  → Bootstrapping GitOps app-of-apps pattern..."
+    
+    # Update repo URLs in GitOps files
+    sudo find gitops/app-of-apps -type f -name "*.yaml" -exec sed -i "s|https://github.com/your-org/idp|${REPO_URL}|g" {} \;
+    
+    # Apply AppProjects
+    kubectl apply -f gitops/app-of-apps/appprojects.yaml
+    
+    # Apply bootstrap (creates root-app)
+    kubectl apply -f gitops/app-of-apps/bootstrap.yaml
+    
+    echo -e "${GREEN}  ✓ GitOps app-of-apps configured${NC}"
 }
 
 ##############################################################################
