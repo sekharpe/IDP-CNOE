@@ -7,10 +7,14 @@ resources:
   - namespace.yaml
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
   - ingress.yaml
-  - configmap.yaml
+  - ingress.yaml
 
 patches:
   - path: argocd-server-patch.yaml
     target:
       kind: Deployment
       name: argocd-server
+  - path: configmap.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-cm

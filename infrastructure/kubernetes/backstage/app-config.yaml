@@ -95,7 +95,7 @@ data:
         
         # Add your service catalogs here
         # - type: url
-        #   target: https://github.com/your-org/sample-app/blob/main/catalog-info.yaml
+        #   target: https://github.com/sekharpe/IDP-CNOE/blob/master/backstage/templates/demo-nodejs/skeleton/catalog-info.yaml
     
     kubernetes:
       serviceLocatorMethod:
